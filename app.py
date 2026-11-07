@@ -20,7 +20,7 @@ def load_data():
     
     df = pd.read_csv(DB_FILE)
     
-    # Normalizar automáticamente fechas antiguas o nuevas a formato DD/MM/YYYY
+    # Normalizar automáticamente fechas a formato DD/MM/YYYY
     if not df.empty and "Fecha" in df.columns:
         df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce").dt.strftime("%d/%m/%Y").fillna(df["Fecha"])
         
@@ -134,7 +134,29 @@ if menu == "Registrar Captura":
     col1, col2 = st.columns(2)
 
     with col1:
-        fecha = st.date_input("Fecha de la salida", value=datetime.date.today())
+        st.markdown("##### 📅 Fecha de la salida")
+        hoy = datetime.date.today()
+        
+        c_d, c_m, c_a = st.columns(3)
+        with c_d:
+            dia_sel = st.selectbox("Día", list(range(1, 32)), index=hoy.day - 1)
+        with c_m:
+            meses_dict = {
+                "Enero": 1, "Febrero": 2, "Marzo": 3, "Abril": 4, 
+                "Mayo": 5, "Junio": 6, "Julio": 7, "Agosto": 8, 
+                "Septiembre": 9, "Octubre": 10, "Noviembre": 11, "Diciembre": 12
+            }
+            mes_nombre_sel = st.selectbox("Mes", list(meses_dict.keys()), index=hoy.month - 1)
+            mes_sel = meses_dict[mes_nombre_sel]
+        with c_a:
+            ano_sel = st.selectbox("Año", [2024, 2025, 2026, 2027], index=2) # 2026 por defecto
+            
+        try:
+            fecha = datetime.date(ano_sel, mes_sel, dia_sel)
+        except ValueError:
+            st.warning("⚠️ Fecha no válida (ej. 31 de febrero). Se ajustará automáticamente.")
+            fecha = hoy
+
         fase_lunar_calculada = obtener_fase_lunar(fecha)
         st.info(f"Fase lunar (Tablademareas): **{fase_lunar_calculada}**")
 
@@ -171,3 +193,12 @@ if menu == "Registrar Captura":
             default_viento_idx = 0
 
         viento_dir = st.selectbox("Dirección del Viento (Open-Meteo)", direcciones_viento, index=default_viento_idx)
+        viento_vel = st.number_input("Velocidad del Viento (km/h)", min_value=0.0, max_value=120.0, value=clima["vel"], step=1.0)
+
+        opciones_lluvia = ["Despejado / Sin lluvia", "Llovizna ligera", "Lluvia moderada", "Lluvia intensa"]
+        try:
+            default_lluvia_idx = opciones_lluvia.index(clima["lluvia"])
+        except ValueError:
+            default_lluvia_idx = 0
+
+        lluvia_estado = st.selectbox("Previsión de
