@@ -251,11 +251,15 @@ elif menu == "Gestión de Datos (CSV)":
         save_data(df_vacio)
         st.success("¡Base de datos restablecida correctamente a cero!")
 
-# --- ASISTENTE DE ABRIGO MEDIANTE FORMULARIO (100% REACTIVO) ---
+# --- ASISTENTE DE ABRIGO CON MEMORIA DE SESIÓN (ESTRICTAMENTE REACTIVO) ---
 st.markdown("---")
 st.subheader("Asistente de Selección de Puerto (Abrigo Geográfico)")
 
-with st.form(key="form_asistente_abrigo"):
+# Inicializamos el estado si no existe
+if "viento_seleccionado" not in st.session_state:
+    st.session_state.viento_seleccionado = "Norte (N)"
+
+with st.form(key="form_asistente_abrigo_v3"):
     col_f1, col_f2 = st.columns(2)
     with col_f1:
         viento_consulta = st.selectbox(
@@ -266,6 +270,8 @@ with st.form(key="form_asistente_abrigo"):
         fuerza_viento = st.select_slider("Intensidad orientativa", options=["Flojo", "Moderado", "Fuerte"])
     
     submitted = st.form_submit_button("🔍 Calcular Puertos Protegidos")
+    if submitted:
+        st.session_state.viento_seleccionado = viento_consulta
 
 def recomendar_puerto_estricto(viento):
     if viento == "Norte (N)":
@@ -287,7 +293,8 @@ def recomendar_puerto_estricto(viento):
     else:
         return ["Puerto de Muros", "Portosín (Porto do Son)", "Cee", "Lira"], "Con condiciones de **Calma o Variable**, cualquier puerto de la zona es excelente y cómodo para la práctica del eging."
 
-puertos_rec, motivo_rec = recomendar_puerto_estricto(viento_consulta)
+# Mostramos el resultado basado en el valor guardado tras pulsar el botón
+puertos_rec, motivo_rec = recomendar_puerto_estricto(st.session_state.viento_seleccionado)
 
-st.success(f"📌 **Puertos más abrigados recomendados:** {', '.join(puertos_rec)}")
+st.success(f"📌 **Puertos más abrigados para {st.session_state.viento_seleccionado}:** {', '.join(puertos_rec)}")
 st.info(f"ℹ️ **Razón técnica:** {motivo_rec}")
