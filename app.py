@@ -12,7 +12,7 @@ def load_data():
     if not os.path.exists(DB_FILE):
         df = pd.DataFrame(columns=[
             "Fecha", "Puerto", "Hora", "Marea", "Claridad Agua", 
-            "Temp_Agua_C", "Viento_Dir", "Viento_Vel_KmH", "Lluvia", 
+            "Temp_Ambiente_C", "Temp_Agua_C", "Viento_Dir", "Viento_Vel_KmH", "Lluvia", 
             "Fase_Luna", "Resultado", "Marca_Egi", "Color_Egi", "Talla_Egi", "Notas"
         ])
         df.to_csv(DB_FILE, index=False)
@@ -74,6 +74,10 @@ if menu == "Registrar Captura":
         ]
         puerto = st.selectbox("Puerto / Pesquero", puertos_tablademareas)
         
+        # Hora de la captura (por defecto la actual del sistema, editable)
+        hora_actual_str = datetime.datetime.now().strftime("%H:%M")
+        hora_captura = st.text_input("Hora de la captura", value=hora_actual_str, placeholder="Ej: 20:30")
+
         marea = st.selectbox("Estado de la Marea", [
             "Subiendo (Primeras horas)",
             "Subiendo (A punto de pleamar)",
@@ -108,19 +112,24 @@ if menu == "Registrar Captura":
         color_egi = st.text_input("Color / Acabado del Egi", placeholder="Ej: Rosa Glow, Natural Sardine...")
         talla_egi = st.selectbox("Tamaño del Egi", ["1.8", "2.0", "2.5", "3.0", "3.5", "Otros"])
 
-    temp_agua = st.slider("Temp. Agua estimada (°C)", min_value=5.0, max_value=25.0, value=15.0, step=0.5)
+    # Selector térmico en dos columnas (Temperatura Ambiente y Temperatura del Agua)
+    st.markdown("### 🌡️ Registros Térmicos")
+    col_t1, col_t2 = st.columns(2)
+    with col_t1:
+        temp_ambiente = st.slider("Temp. Ambiente / Exterior (°C) [Windy]", min_value=-5.0, max_value=40.0, value=14.0, step=0.5)
+    with col_t2:
+        temp_agua = st.slider("Temp. Agua estimada (°C)", min_value=5.0, max_value=25.0, value=15.0, step=0.5)
+
     notas = st.text_area("Notas rápidas (Ej: Picó a fondo, tirón seco... Estado del mar)")
 
     if st.button("💾 ¡Guardar Captura en el Historial!"):
-        # Captura automática de la hora actual exacta del sistema
-        hora_exacta = datetime.datetime.now().strftime("%H:%M")
-
         nueva_captura = {
             "Fecha": str(fecha), 
             "Puerto": puerto, 
-            "Hora": hora_exacta, 
+            "Hora": hora_captura, 
             "Marea": marea,
             "Claridad Agua": claridad, 
+            "Temp_Ambiente_C": temp_ambiente,
             "Temp_Agua_C": temp_agua, 
             "Viento_Dir": viento_dir, 
             "Viento_Vel_KmH": viento_vel,
@@ -134,7 +143,7 @@ if menu == "Registrar Captura":
         }
         df = pd.concat([df, pd.DataFrame([nueva_captura])], ignore_index=True)
         save_data(df)
-        st.success(f"🎉 ¡Jornada en **{puerto}** a las **{hora_exacta}** guardada correctamente!")
+        st.success(f"🎉 ¡Jornada en **{puerto}** a las **{hora_captura}** guardada correctamente!")
 
 # --- VISTA 2: VER HISTORIAL ---
 elif menu == "Ver Diario / Historial":
@@ -191,7 +200,7 @@ elif menu == "Gestión de Datos (CSV)":
     if st.button("🗑️ Restablecer / Vaciar Base de Datos (CSV)"):
         df_vacio = pd.DataFrame(columns=[
             "Fecha", "Puerto", "Hora", "Marea", "Claridad Agua", 
-            "Temp_Agua_C", "Viento_Dir", "Viento_Vel_KmH", "Lluvia", 
+            "Temp_Ambiente_C", "Temp_Agua_C", "Viento_Dir", "Viento_Vel_KmH", "Lluvia", 
             "Fase_Luna", "Resultado", "Marca_Egi", "Color_Egi", "Talla_Egi", "Notas"
         ])
         save_data(df_vacio)
