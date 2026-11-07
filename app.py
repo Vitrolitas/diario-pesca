@@ -251,7 +251,7 @@ elif menu == "Gestión de Datos (CSV)":
         save_data(df_vacio)
         st.success("¡Base de datos restablecida correctamente a cero!")
 
-# --- ASISTENTE DE ABRIGO (CON CLAVE DINÁMICA REFRESCADA) ---
+# --- ASISTENTE DE ABRIGO (FORZANDO ACTUALIZACIÓN ESTRICTA) ---
 st.markdown("---")
 st.subheader("Asistente de Selección de Puerto (Abrigo Geográfico)")
 
@@ -261,60 +261,34 @@ with col_pred1:
     viento_consulta = st.selectbox(
         "Consultar abrigo rápido para dirección de viento:", 
         ["Norte (N)", "Nordeste (NE)", "Este (E)", "Sudeste (SE)", "Sur (S)", "Suroeste (SW)", "Oeste (W)", "Noroeste (NW)", "Calma / Variable"],
-        key="asistente_viento_dinamico"
+        key="asistente_viento_fijo_v2"
     )
 
 with col_pred2:
-    fuerza_viento = st.select_slider("Intensidad orientativa", options=["Flojo", "Moderado", "Fuerte"], key="asistente_fuerza_dinamico")
+    fuerza_viento = st.select_slider("Intensidad orientativa", options=["Flojo", "Moderado", "Fuerte"], key="asistente_fuerza_fijo_v2")
 
-def recomendar_puerto_exacto(dir_viento):
-    if dir_viento == "Norte (N)":
-        return {
-            "recomendados": ["Muros - Esteiro", "Puerto de Muros", "Corcubión", "Cee"],
-            "motivo": "Con viento del **Norte**, los muelles situados al fondo de la ría y bajo resguardo de los montes del norte (Muros, Esteiro, Corcubión y Cee) quedan perfectamente protegidos."
-        }
-    elif dir_viento == "Nordeste (NE)":
-        return {
-            "recomendados": ["Muros - Esteiro", "Puerto de Muros", "Cee"],
-            "motivo": "El viento de **Nordeste** (componente terral norteño) cruza los montes y deja el agua muy plana en la zona de Muros y en el fondo de la ría de Corcubión."
-        }
-    elif dir_viento == "Este (E)":
-        return {
-            "recomendados": ["Lira", "Puerto de Muros", "Portosín (Porto do Son)"],
-            "motivo": "Con viento de **Este** (tierra a mar puro), las dársenas de Lira, Muros y Portosín apenas sufren oleaje, manteniendo una superficie muy limpia."
-        }
-    elif dir_viento == "Sudeste (SE)":
-        return {
-            "recomendados": ["Portosín (Porto do Son)", "Porto do Son", "Lira"],
-            "motivo": "El viento de **Sudeste** choca contra la parte interior de la barra, siendo ideales los puertos de la cara sur como Portosín y Porto do Son."
-        }
-    elif dir_viento == "Sur (S)":
-        return {
-            "recomendados": ["Portosín (Porto do Son)", "Porto do Son"],
-            "motivo": "Con componente **Sur**, la cara sur de la ría queda abrigada por la Sierra del Barbanza, haciendo que Portosín y Porto do Son sean los más resguardados."
-        }
-    elif dir_viento == "Suroeste (SW)":
-        return {
-            "recomendados": ["Portosín (Porto do Son)", "Porto do Son"],
-            "motivo": "El viento de **Suroeste** entra directo de mar abierto en la ría de Muros y Noia; el mejor resguardo se encuentra al amparo del muelle de Portosín."
-        }
-    elif dir_viento == "Oeste (W)":
-        return {
-            "recomendados": ["Muros - Esteiro", "Cee", "Corcubión"],
-            "motivo": "Con viento de **Oeste** directo de mar abierto, las zonas menos castigadas son las más abrigadas al fondo de las rías (Esteiro, Cee y Corcubión)."
-        }
-    elif dir_viento == "Noroeste (NW)":
-        return {
-            "recomendados": ["Muros - Esteiro", "Puerto de Muros", "Corcubión"],
-            "motivo": "El viento de **Noroeste** golpea la costa exterior; los muelles de Muros y Esteiro quedan protegidos por la propia configuración de la ría."
-        }
+# Diccionario directo de recomendaciones por cada valor exacto del desplegable
+def obtener_recomendacion(viento):
+    if viento == "Norte (N)":
+        return ["Muros - Esteiro", "Puerto de Muros", "Corcubión", "Cee"], "Con viento del **Norte**, los muelles situados al fondo de la ría y bajo resguardo de los montes del norte quedan perfectamente protegidos."
+    elif viento == "Nordeste (NE)":
+        return ["Muros - Esteiro", "Puerto de Muros", "Cee"], "El viento de **Nordeste** (terral) cruza los montes y deja el agua muy plana en la zona de Muros y fondo de la ría de Corcubión."
+    elif viento == "Este (E)":
+        return ["Lira", "Puerto de Muros", "Portosín (Porto do Son)"], "Con viento de **Este** (tierra a mar puro), las dársenas de Lira, Muros y Portosín apenas sufren oleaje."
+    elif viento == "Sudeste (SE)":
+        return ["Portosín (Porto do Son)", "Porto do Son", "Lira"], "El viento de **Sudeste** bate la parte norte, siendo ideales los puertos de la cara sur como Portosín y Porto do Son."
+    elif viento == "Sur (S)":
+        return ["Portosín (Porto do Son)", "Porto do Son"], "Con componente **Sur**, la cara sur de la ría queda abrigada por la Sierra del Barbanza (Portosín y Porto do Son)."
+    elif viento == "Suroeste (SW)":
+        return ["Portosín (Porto do Son)", "Porto do Son"], "El viento de **Suroeste** entra abierto en la ría; el mejor resguardo se encuentra al amparo del muelle de Portosín."
+    elif viento == "Oeste (W)":
+        return ["Muros - Esteiro", "Cee", "Corcubión"], "Con viento de **Oeste** directo, las zonas menos castigadas son los muelles más al fondo de las rías (Esteiro, Cee y Corcubión)."
+    elif viento == "Noroeste (NW)":
+        return ["Muros - Esteiro", "Puerto de Muros", "Corcubión"], "El viento de **Noroeste** golpea la costa exterior; Muros y Esteiro quedan protegidos por la propia geometría de la ría."
     else:
-        return {
-            "recomendados": ["Puerto de Muros", "Portosín (Porto do Son)", "Cee", "Lira"],
-            "motivo": "Con condiciones de **Calma o Variable**, cualquier puerto de la zona es excelente y cómodo para la práctica del eging."
-        }
+        return ["Puerto de Muros", "Portosín (Porto do Son)", "Cee", "Lira"], "Con condiciones de **Calma o Variable**, cualquier puerto de la zona es perfectamente accesible y cómodo."
 
-res_abrigo = recomendar_puerto_exacto(viento_consulta)
+puertos_rec, motivo_rec = obtener_recomendacion(viento_consulta)
 
-st.success(f"📌 **Puertos más abrigados recomendados:** {', '.join(res_abrigo['recomendados'])}")
-st.info(f"ℹ️ **Razón técnica:** {res_abrigo['motivo']}")
+st.success(f"📌 **Puertos más abrigados recomendados:** {', '.join(puertos_rec)}")
+st.info(f"ℹ️ **Razón técnica:** {motivo_rec}")
