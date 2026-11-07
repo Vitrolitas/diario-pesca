@@ -174,7 +174,6 @@ if menu == "Registrar Captura":
 
         lluvia_estado = st.selectbox("Previsión de Lluvia", opciones_lluvia, index=default_lluvia_idx)
         
-        # NUEVAS OPCIONES DE CAPTURA SOLICITADAS
         resultado_jornada = st.selectbox(
             "Resultado / Pieza Capturada", 
             ["Chipirón", "Calamar medio", "Calamar grande", "Sepia", "Choco", "Pulpo"]
@@ -203,15 +202,36 @@ if menu == "Registrar Captura":
         }
         df = pd.concat([df, pd.DataFrame([nueva_captura])], ignore_index=True)
         save_data(df)
-        st.success(f"🎉 ¡Jornada en **{puerto}** guardada correctamente con captura de tipo: **{resultado_jornada}**!")
+        st.success(f"🎉 ¡Captura de **{resultado_jornada}** guardada correctamente en el historial!")
 
-# --- VISTA 2: VER HISTORIAL ---
+# --- VISTA 2: VER HISTORIAL Y TOTALES ---
 elif menu == "Ver Diario / Historial":
-    st.title("Historial de Capturas Guardadas")
+    st.title("📂 Historial y Estadísticas de Capturas")
     st.markdown("---")
+    
     if df.empty:
         st.info("No hay capturas registradas todavía.")
     else:
+        # --- PANEL DE RESUMEN Y TOTALES ---
+        st.subheader("📊 Totales y Resumen de Capturas")
+        
+        col_m1, col_m2 = st.columns(2)
+        
+        with col_m1:
+            st.markdown("#### 🦑 Total por Especie / Tipo")
+            conteo_especies = df["Resultado"].value_counts().reset_index()
+            conteo_especies.columns = ["Especie / Pieza", "Cantidad Total"]
+            st.dataframe(conteo_especies, use_container_width=True, hide_index=True)
+            
+        with col_m2:
+            st.markdown("#### 📅 Total Diario (Capturas por Fecha)")
+            conteo_diario = df["Fecha"].value_counts().reset_index()
+            conteo_diario.columns = ["Fecha", "Piezas Capturadas"]
+            conteo_diario = conteo_diario.sort_values(by="Fecha", ascending=False)
+            st.dataframe(conteo_diario, use_container_width=True, hide_index=True)
+
+        st.markdown("---")
+        st.subheader("📋 Listado Completo de Registros")
         st.dataframe(df, use_container_width=True)
 
 # --- VISTA 3: ASISTENTE INTELIGENTE BASADO EN HISTORIAL ---
