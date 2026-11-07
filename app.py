@@ -39,7 +39,7 @@ if opcion == "🎯 ¡Registrar Captura!":
 hora_actual = datetime.now(zoneinfo.ZoneInfo("Europe/Madrid")).strftime("%H:%M")
 fecha_actual = datetime.now().date()
 
-    with st.form("form_captura", clear_on_submit=True):
+with st.form("form_captura", clear_on_submit=True):
     	col1, col2 = st.columns(2)
     
     with col1:
