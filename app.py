@@ -1,78 +1,60 @@
-import pandas as pd
-import plotly.express as px
 import streamlit as st
-from datetime import datetime
-import zoneinfo
+import pandas as pd
 import os
 
-st.set_page_config(page_title="Diario y Predictor de Eging Pro", page_icon="🦑", layout="wide")
+# Configuración de la página
+st.set_page_config(page_title="Diario de Eging & Asistente", page_icon="🦑", layout="wide")
 
 DB_FILE = "diario_capturas_eging.csv"
 
 def load_data():
-    if os.path.exists(DB_FILE):
-        return pd.read_csv(DB_FILE)
-    else:
-        return pd.DataFrame(columns=[
-            "Fecha", "Puerto", "Hora", "Marea", "Claridad_Agua", 
-            "Temp_Agua_C", "Viento_Dir", "Fase_Luna", "Marca_Egi", "Color_Egi", "Talla_Egi", "Notas"
+    if not os.path.exists(DB_FILE):
+        df = pd.DataFrame(columns=[
+            "Fecha", "Puerto", "Hora", "Marea", "Claridad Agua", 
+            "Temp_Agua_C", "Viento_Dir", "Viento_Vel_KmH", "Lluvia", 
+            "Fase_Luna", "Marca_Egi", "Color_Egi", "Talla_Egi", "Notas"
         ])
+        df.to_csv(DB_FILE, index=False)
+    return pd.read_csv(DB_FILE)
 
 def save_data(df):
     df.to_csv(DB_FILE, index=False)
 
 df = load_data()
 
-st.title("🦑 Diario Pro & Predictor de Calamar (Eging)")
+st.title("🦑 Diario de Capturas Eging & Asistente Meteorológico")
+st.markdown("---")
 
-opcion = st.sidebar.radio("Navegación", [
-    "🎯 ¡Registrar Captura!", 
-    "📝 Registrar Jornada sin éxito (Bolos)", 
-    "🔮 Predictor por Puerto", 
-    "📊 Estadísticas de Señuelos y Artesanos"
-])
+st.subheader("📝 Registrar Nueva Captura")
 
-if opcion == "🎯 ¡Registrar Captura!":
-    st.header("🎯 ¡Tengo un Calamar!")
-    st.caption("Apunta los datos de esta pieza y el origen exacto del señuelo.")
-    
-    import zoneinfo
-hora_actual = datetime.now(zoneinfo.ZoneInfo("Europe/Madrid")).strftime("%H:%M")
-fecha_actual = datetime.now().date()
+col1, col2 = st.columns(2)
 
-with st.form("form_captura", clear_on_submit=True):
-    col1, col2 = st.columns(2)
+with col1:
+    fecha = st.date_input("Fecha de la salida")
     
-    with col1:
-        puertos_tablademareas = [
-            "Puerto de Muros",
-            "Muros - Esteiro",
-            "Portosín (Porto do Son)",
-            "Porto do Son",
-            "Corcubión",
-            "Lira",
-            "Cee"
-        ]
-        puerto = st.selectbox("Puerto / Pesquero (Tablademareas)", puertos_tablademareas)
-        
-        fecha = st.date_input("Fecha", fecha_actual, format="DD/MM/YYYY")
-        hora = st.text_input("Hora exacta de la picada", value=hora_actual)
-        
-        marea_estado = st.selectbox(
-            "Estado de la Marea (Tablademareas)", 
-            [
-                "Subiendo (Primeras horas)", 
-                "Subiendo (A punto de pleamar)", 
-                "Pleamar exacta", 
-                "Bajando (Primeras horas)", 
-                "Bajando (A punto de bajamar)", 
-                "Bajamar exacta"
-            ]
-        )
-        claridad = st.selectbox("Claridad del Agua", ["Cristalina", "Ligeramente tomada", "Turbia / Oscura"])
+    puertos_tablademareas = [
+        "Puerto de Muros",
+        "Muros - Esteiro",
+        "Portosín (Porto do Son)",
+        "Porto do Son",
+        "Corcubión",
+        "Lira",
+        "Cee"
+    ]
+    puerto = st.selectbox("Puerto / Pesquero (Tablademareas)", puertos_tablademareas)
     
-        with col2:
-    # Datos meteorológicos extraídos de Windy
+    hora = st.text_input("Hora aproximada", placeholder="Ej: 20:30")
+    marea = st.selectbox("Estado de la Marea", [
+        "Subiendo (Primeras horas)",
+        "Subiendo (A punto de pleamar)",
+        "Pleamar exacta",
+        "Bajando (Primeras horas)",
+        "Bajando (A punto de bajamar)",
+        "Bajamar exacta"
+    ])
+    claridad = st.selectbox("Claridad del Agua", ["Cristalina", "Ligeramente tomada", "Turbia / Oscura"])
+
+with col2:
     direcciones_viento = [
         "Norte (N)", 
         "Nordeste (NE)", 
@@ -99,56 +81,37 @@ with st.form("form_captura", clear_on_submit=True):
         "Previsión de Lluvia (Windy)",
         ["Despejado / Sin lluvia", "Llovizna ligera", "Lluvia moderada", "Lluvia intensa / Chubascos"]
     )
-        marca_egi = st.text_input("Marca / Artesano del Egi", placeholder="Ej: Yamashita, DTD...")
-        color_egi = st.text_input("Color / Acabado del Egi", placeholder="Ej: Rosa Glow, Natural Sardine...")
-        talla_egi = st.selectbox("Tamaño del Egi", ["1.8", "2.0", "2.5", "3.0", "3.5", "Otros"])
 
-    temp_agua = st.slider("Temp. Agua estimada (°C)", min_value=5.0, max_value=25.0, value=15.0, step=0.5)
-    notas = st.text_area("Notas rápidas (Ej: Picó a fondo, tirón seco... Estado del mar)")
+    marca_egi = st.text_input("Marca del Egi", placeholder="Ej: Yamashita, DTD...")
+    color_egi = st.text_input("Color / Acabado del Egi", placeholder="Ej: Rosa Glow, Natural Sardine...")
+    talla_egi = st.selectbox("Tamaño del Egi", ["1.8", "2.0", "2.5", "3.0", "3.5", "Otros"])
 
-    submitted = st.form_submit_button("💾 ¡Guardar Captura!")
-        
+temp_agua = st.slider("Temp. Agua estimada (°C)", min_value=5.0, max_value=25.0, value=15.0, step=0.5)
+notas = st.text_area("Notas rápidas (Ej: Picó a fondo, tirón seco... Estado del mar)")
+
+submitted = st.form_submit_button if "form" in locals() else st.button("💾 ¡Guardar Captura!")
+
 if submitted:
-            nueva_captura = {
-                "Fecha": fecha, "Puerto": puerto, "Hora": hora, "Marea": marea,
-                "Claridad_Agua": claridad, "Temp_Agua_C": temp_agua,
-                "Viento_Dir": viento_dir, "Fase_Luna": "Creciente",
-                "Marca_Egi": marca_egi, "Color_Egi": color_egi, "Talla_Egi": talla_egi, "Notas": notas
-            }
-            df = pd.concat([df, pd.DataFrame([nueva_captura])], ignore_index=True)
-            save_data(df)
-            st.success(f"🎉 ¡Captura con señuelo **{marca_egi}** guardada con éxito!")
+    nueva_captura = {
+        "Fecha": str(fecha), 
+        "Puerto": puerto, 
+        "Hora": hora, 
+        "Marea": marea,
+        "Claridad Agua": claridad, 
+        "Temp_Agua_C": temp_agua, 
+        "Viento_Dir": viento_dir, 
+        "Viento_Vel_KmH": viento_vel,
+        "Lluvia": lluvia_estado,
+        "Fase_Luna": "Creciente",
+        "Marca_Egi": marca_egi, 
+        "Color_Egi": color_egi, 
+        "Talla_Egi": talla_egi, 
+        "Notas": notas
+    }
+    df = pd.concat([df, pd.DataFrame([nueva_captura])], ignore_index=True)
+    save_data(df)
+    st.success(f"🎉 ¡Captura con señuelo **{marca_egi}** guardada con éxito!")
 
-elif opcion == "📝 Registrar Jornada sin éxito (Bolos)":
-    st.header("📝 Registrar salida sin capturas (Bolos)")
-    with st.form("form_bolo"):
-        fecha_bolo = st.date_input("Fecha del bolo", datetime.now().date())
-        puerto_bolo = st.text_input("Puerto", value="Puerto de Muros")
-        motivo = st.text_area("Observaciones del día (Mucho mar de fondo, agua sucia...)")
-        if st.form_submit_button("Guardar Jornada en Blanco"):
-            st.info("Bolo guardado correctamente.")
-
-elif opcion == "🔮 Predictor por Puerto":
-    st.header("🔮 Asistente Predictivo")
-    if df.empty:
-        st.warning("⚠️ Necesitas registrar algunas capturas para ver recomendaciones.")
-    else:
-        puerto_sel = st.selectbox("Selecciona tu destino:", df["Puerto"].unique().tolist())
-        df_p = df[df["Puerto"] == puerto_sel]
-        if not df_p.empty:
-            st.subheader(f"🎯 Marcas y Artesanos más efectivos en {puerto_sel}:")
-            conteo_marcas = df_p["Marca_Egi"].value_counts()
-            st.bar_chart(conteo_marcas)
-
-elif opcion == "📊 Estadísticas de Señuelos y Artesanos":
-    st.header("📊 Análisis Global de Marcas y Diseños")
-    if df.empty:
-        st.info("Aún no hay datos guardados.")
-    else:
-        st.dataframe(df)
-        st.subheader("Eficacia por Marca o Creador")
-        fig = px.histogram(df, x="Marca_Egi", color="Puerto", title="Capturas conseguidas por cada Fabricante / Artesano")
-        st.plotly_chart(fig, use_container_width=True)
 st.markdown("---")
 st.subheader("💡 Asistente de Selección de Puerto (Abrigo)")
 
@@ -156,14 +119,13 @@ col_pred1, col_pred2 = st.columns(2)
 
 with col_pred1:
     viento_consulta = st.selectbox(
-        "Dirección del viento actual (Windy)", 
+        "Dirección del viento actual (para consultar abrigo)", 
         ["Norte (N)", "Nordeste (NE)", "Este (E)", "Sudeste (SE)", "Sur (S)", "Suroeste (SW)", "Oeste (W)", "Noroeste (NW)"]
     )
 
 with col_pred2:
     fuerza_viento = st.select_slider("Intensidad del viento", options=["Flojo", "Moderado", "Fuerte"])
 
-# Lógica de abrigo según vientos dominantes en la zona
 def recomendar_puerto(direccion):
     if "Norte" in direccion or "Nordeste" in direccion or "Noroeste" in direccion:
         return {
@@ -180,7 +142,7 @@ def recomendar_puerto(direccion):
             "recomendados": ["Lira", "Puerto de Muros", "Portosín (Porto do Son)"],
             "motivo": "Con viento de Este (tierra a mar), el agua se mantiene bastante plana y pescable en casi todas las dársenas."
         }
-    else: # Oeste / Mar de fuera
+    else: 
         return {
             "recomendados": ["Muros - Esteiro", "Cee"],
             "motivo": "Con viento directo de mar abierto (Oeste), los spots más resguardados son los ubicados al fondo de las rías."
