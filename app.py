@@ -72,16 +72,16 @@ with st.form("form_captura", clear_on_submit=True):
         claridad = st.selectbox("Claridad del Agua", ["Cristalina", "Ligeramente tomada", "Turbia / Oscura"])
     with col2:
         # Datos meteorológicos extraídos de Windy
-    direcciones_viento = [
-        "Norte (N)", 
-        "Nordeste (NE)", 
-        "Este (E)", 
-        "Sudeste (SE)", 
-        "Sur (S)", 
-        "Suroeste (SW)", 
-        "Oeste (W)", 
-        "Noroeste (NW)",
-        "Calma / Variable"
+    	direcciones_viento = [
+            "Norte (N)", 
+            "Nordeste (NE)", 
+            "Este (E)", 
+            "Sudeste (SE)", 
+            "Sur (S)", 
+            "Suroeste (SW)", 
+            "Oeste (W)", 
+            "Noroeste (NW)",
+            "Calma / Variable"
     ]
     viento_dir = st.selectbox("Dirección del Viento (Windy)", direcciones_viento)
 
