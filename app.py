@@ -59,7 +59,7 @@ if menu == "Registrar Captura":
     with col1:
         fecha = st.date_input("Fecha de la salida", value=datetime.date.today())
         
-        # Calculamos la fase lunar automáticamente según la fecha de tablademareas
+        # Calculamos la fase lunar automáticamente según la fecha
         fase_lunar_calculada = obtener_fase_lunar(fecha)
         st.info(f"🌙 Fase lunar (Tablademareas): **{fase_lunar_calculada}**")
 
@@ -74,7 +74,6 @@ if menu == "Registrar Captura":
         ]
         puerto = st.selectbox("Puerto / Pesquero", puertos_tablademareas)
         
-        hora = st.text_input("Hora aproximada", placeholder="Ej: 20:30")
         marea = st.selectbox("Estado de la Marea", [
             "Subiendo (Primeras horas)",
             "Subiendo (A punto de pleamar)",
@@ -113,10 +112,13 @@ if menu == "Registrar Captura":
     notas = st.text_area("Notas rápidas (Ej: Picó a fondo, tirón seco... Estado del mar)")
 
     if st.button("💾 ¡Guardar Captura en el Historial!"):
+        # Captura automática de la hora actual exacta del sistema
+        hora_exacta = datetime.datetime.now().strftime("%H:%M")
+
         nueva_captura = {
             "Fecha": str(fecha), 
             "Puerto": puerto, 
-            "Hora": hora, 
+            "Hora": hora_exacta, 
             "Marea": marea,
             "Claridad Agua": claridad, 
             "Temp_Agua_C": temp_agua, 
@@ -132,7 +134,7 @@ if menu == "Registrar Captura":
         }
         df = pd.concat([df, pd.DataFrame([nueva_captura])], ignore_index=True)
         save_data(df)
-        st.success(f"🎉 ¡Jornada en **{puerto}** guardada correctamente con fase lunar **{fase_lunar_calculada}**!")
+        st.success(f"🎉 ¡Jornada en **{puerto}** a las **{hora_exacta}** guardada correctamente!")
 
 # --- VISTA 2: VER HISTORIAL ---
 elif menu == "Ver Diario / Historial":
@@ -168,14 +170,12 @@ elif menu == "Asistente Histórico (Similitud)":
             st.info(f"🌙 Fase lunar actual calculada: **{fase_hoy}**")
 
         if st.button("🔍 Buscar coincidencias en mi historial"):
-            # Filtramos por el puerto seleccionado y mismo viento o fase lunar similar
             coincidencias = df[(df["Puerto"] == puerto_busqueda) & (df["Viento_Dir"] == viento_busqueda)]
             
             if not coincidencias.empty:
-                st.success(adversary := f"¡Encontradas **{len(coincidencias)} jornadas pasadas** en {puerto_busqueda} con viento {viento_busqueda}!")
+                st.success(f"¡Encontradas **{len(coincidencias)} jornadas pasadas** en {puerto_busqueda} con viento {viento_busqueda}!")
                 st.dataframe(coincidencias, use_container_width=True)
             else:
-                # Búsqueda más flexible solo por puerto
                 coincidencias_puerto = df[df["Puerto"] == puerto_busqueda]
                 if not coincidencias_puerto.empty:
                     st.info(f"No hay registros exactos con ese viento, pero sí tienes {len(coincidencias_puerto)} salidas previas en este puerto:")
