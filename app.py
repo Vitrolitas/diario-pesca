@@ -61,7 +61,7 @@ if menu == "Registrar Captura":
         
         # Calculamos la fase lunar automáticamente según la fecha de tablademareas
         fase_lunar_calculada = obtener_fase_lunar(fecha)
-        st.info(āk f"🌙 Fase lunar (Tablademareas): **{fase_lunar_calculada}**")
+        st.info(f"🌙 Fase lunar (Tablademareas): **{fase_lunar_calculada}**")
 
         puertos_tablademareas = [
             "Puerto de Muros",
