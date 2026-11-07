@@ -173,7 +173,12 @@ if menu == "Registrar Captura":
             default_lluvia_idx = 0
 
         lluvia_estado = st.selectbox("Previsión de Lluvia", opciones_lluvia, index=default_lluvia_idx)
-        resultado_jornada = st.selectbox("Resultado de la Pesca", ["Éxito (Buenas capturas)", "Regular (Alguna pieza)", "Sin tocar escama (Blanco)"])
+        
+        # NUEVAS OPCIONES DE CAPTURA SOLICITADAS
+        resultado_jornada = st.selectbox(
+            "Resultado / Pieza Capturada", 
+            ["Chipirón", "Calamar medio", "Calamar grande", "Sepia", "Choco", "Pulpo"]
+        )
 
         marca_egi = st.text_input("Marca del Egi", placeholder="Ej: Yamashita, DTD...")
         color_egi = st.text_input("Color / Acabado del Egi", placeholder="Ej: Rosa Glow, Natural Sardine...")
@@ -198,7 +203,7 @@ if menu == "Registrar Captura":
         }
         df = pd.concat([df, pd.DataFrame([nueva_captura])], ignore_index=True)
         save_data(df)
-        st.success(f"🎉 ¡Jornada en **{puerto}** guardada correctamente!")
+        st.success(f"🎉 ¡Jornada en **{puerto}** guardada correctamente con captura de tipo: **{resultado_jornada}**!")
 
 # --- VISTA 2: VER HISTORIAL ---
 elif menu == "Ver Diario / Historial":
