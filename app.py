@@ -251,7 +251,7 @@ elif menu == "Gestión de Datos (CSV)":
         save_data(df_vacio)
         st.success("¡Base de datos restablecida correctamente a cero!")
 
-# --- ASISTENTE DE ABRIGO (CORREGIDO PARA ACTUALIZARSE AL CAMBIAR EL VIENTO) ---
+# --- ASISTENTE DE ABRIGO (LÓGICA INDEPENDIENTE Y CORREGIDA) ---
 st.markdown("---")
 st.subheader("Asistente de Selección de Puerto (Abrigo Geográfico)")
 
@@ -260,35 +260,42 @@ col_pred1, col_pred2 = st.columns(2)
 with col_pred1:
     viento_consulta = st.selectbox(
         "Consultar abrigo rápido para dirección de viento:", 
-        ["Norte (N)", "Nordeste (NE)", "Este (E)", "Sudeste (SE)", "Sur (S)", "Suroeste (SW)", "Oeste (W)", "Noroeste (NW)", "Calma / Variable"]
+        ["Norte (N)", "Nordeste (NE)", "Este (E)", "Sudeste (SE)", "Sur (S)", "Suroeste (SW)", "Oeste (W)", "Noroeste (NW)", "Calma / Variable"],
+        key="selector_abrigo_viento"
     )
 
 with col_pred2:
-    fuerza_viento = st.select_slider("Intensidad orientativa", options=["Flojo", "Moderado", "Fuerte"])
+    fuerza_viento = st.select_slider("Intensidad orientativa", options=["Flojo", "Moderado", "Fuerte"], key="selector_abrigo_fuerza")
 
-def recomendar_puerto(direccion):
-    if "Norte" in direccion or "Nordeste" in direccion or "Noroeste" in direccion:
+def recomendar_puerto_exacto(dir_viento):
+    d = dir_viento.lower()
+    if "norte" in d or "nordeste" in d or "noroeste" in d:
         return {
             "recomendados": ["Muros - Esteiro", "Puerto de Muros", "Corcubión", "Cee"],
-            "motivo": "Los vientos de componente Norte quedan protegidos por el monte en Muros/Esteiro y al fondo de la ría en Corcubión/Cee."
+            "motivo": f"Con vientos de componente **{dir_viento}**, los puertos situados al fondo de la ría y protegidos por montes o laderas (como Muros, Esteiro, Corcubión y Cee) quedan totalmente resguardados."
         }
-    elif "Sur" in direccion or "Suroeste" in direccion or "Sudeste" in direccion:
+    elif "sur" in d or "suroeste" in d or "sudeste" in d:
         return {
-            "recomendados": ["Portosín (Porto do Son)", "Porto do Son"],
-            "motivo": "La cara sur de la ría (Portosín y Porto do Son) queda perfectamente al resguardo de la Sierra del Barbanza con componente Sur."
+            "recomendados": ["Portosín (Porto do Son)", "Porto do Son", "Lira"],
+            "motivo": f"Con vientos de componente **{dir_viento}**, la cara sur de la ría y los abrigos bajo la Sierra del Barbanza (Portosín y Porto do Son) ofrecen aguas mucho más tranquilas y pescables."
         }
-    elif "Este" in direccion:
+    elif "este" in d:
         return {
             "recomendados": ["Lira", "Puerto de Muros", "Portosín (Porto do Son)"],
-            "motivo": "Con viento de Este (tierra a mar), el agua se mantiene bastante plana y pescable en casi todas las dársenas."
+            "motivo": f"Al soplar viento del **{dir_viento}** (dirección tierra a mar), la superficie del agua en las dársenas se mantiene bastante plana y limpia en casi todos los puntos."
         }
-    else: 
+    elif "oeste" in d:
         return {
             "recomendados": ["Muros - Esteiro", "Cee", "Corcubión"],
-            "motivo": "Con viento directo de mar abierto u Oeste, los spots más resguardados son los ubicados al fondo de las rías."
+            "motivo": f"Con viento directo de mar abierto del **{dir_viento}**, las zonas más seguras y resguardadas son los muelles ubicados más al fondo de las rías."
+        }
+    else:
+        return {
+            "recomendados": ["Puerto de Muros", "Portosín (Porto do Son)", "Cee"],
+            "motivo": "Con condiciones de calma o viento variable, cualquier dársena de la zona es perfectamente accesible y cómoda para pescar."
         }
 
-res = recomendar_puerto(viento_consulta)
+res_abrigo = recomendar_puerto_exacto(viento_consulta)
 
-st.success(f"📌 **Puertos más abrigados recomendados:** {', '.join(res['recomendados'])}")
-st.info(f"ℹ️ **Razón técnica:** {res['motivo']}")
+st.success(f"📌 **Puertos más abrigados recomendados:** {', '.join(res_abrigo['recomendados'])}")
+st.info(f"ℹ️ **Razón técnica:** {res_abrigo['motivo']}")
