@@ -96,7 +96,7 @@ if opcion == "🎯 ¡Registrar Captura!":
 
     submitted = st.form_submit_button("💾 ¡Guardar Captura!")
         
-        if submitted:
+if submitted:
             nueva_captura = {
                 "Fecha": fecha, "Puerto": puerto, "Hora": hora, "Marea": marea,
                 "Claridad_Agua": claridad, "Temp_Agua_C": temp_agua,
