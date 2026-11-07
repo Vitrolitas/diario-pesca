@@ -2,6 +2,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 from datetime import datetime
+import zoneinfo
 import os
 
 st.set_page_config(page_title="Diario y Predictor de Eging Pro", page_icon="🦑", layout="wide")
