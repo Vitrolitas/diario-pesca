@@ -39,25 +39,62 @@ if opcion == "🎯 ¡Registrar Captura!":
     fecha_actual = datetime.now().date()
 
     with st.form("form_captura", clear_on_submit=True):
-        col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Listado completo de puertos orientado a tablademareas.com
+        puertos_tablademareas = [
+            "Puerto de Muros", 
+            "Portosín (Porto do Son)", 
+            "Lira", 
+            "Camariñas", 
+            "Fisterra", 
+            "Muxía", 
+            "Porto do Son",
+            "Noia",
+            "Corcubión",
+            "Muros - Esteiro"
+        ]
+        puerto = st.selectbox("Puerto / Pesquero (Tablademareas)", puertos_tablademareas)
         
-        with col1:
-            puerto = st.text_input("Puerto / Pesquero", value="Puerto de Muros")
-            fecha = st.date_input("Fecha", fecha_actual, format="DD/MM/YYYY")
-            hora = st.text_input("Hora exacta de la picada", value=hora_actual)
-            marea = st.selectbox("Estado de la Marea", ["Llenante", "Pleamar / Llena", "Vaciante", "Bajamar / Vacía"])
-            claridad = st.selectbox("Claridad del Agua", ["Cristalina", "Ligeramente tomada", "Turbia / Con lodo", "Oscura"])
-
-        with col2:
-            marca_egi = st.text_input("Marca / Artesano del Egi", placeholder="Ej: Yamashita, DTD, o Artesano local...")
-            color_egi = st.text_input("Color / Acabado del Egi", placeholder="Ej: Rosa Glow, Natural Sardina...")
-            talla_egi = st.selectbox("Tamaño del Egi", ["1.8", "2.0", "2.5", "3.0", "3.5", "Otros"])
-            viento_dir = st.selectbox("Dirección del Viento", ["Norte", "Nordeste", "Este", "Sudeste", "Sur", "Sudoeste", "Oeste", "Noroeste", "Calma"])
-
-        temp_agua = st.slider("Temp. Agua estimada (°C)", min_value=5.0, max_value=25.0, value=15.0, step=0.5)
-        notas = st.text_area("Notas rápidas (Ej: Picó a fondo, tirón seco...)")
+        fecha = st.date_input("Fecha", fecha_actual, format="DD/MM/YYYY")
+        hora = st.text_input("Hora exacta de la picada", value=hora_actual)
         
-        submitted = st.form_submit_button("💥 ¡Guardar Captura!")
+        # Estado detallado de la marea
+        marea_estado = st.selectbox(
+            "Estado de la Marea (Tablademareas)", 
+            [
+                "Subiendo (Primeras horas)", 
+                "Subiendo (A punto de pleamar)", 
+                "Pleamar exacta", 
+                "Bajando (Primeras horas)", 
+                "Bajando (A punto de bajamar)", 
+                "Bajamar exacta"
+            ]
+        )
+        
+        claridad = st.selectbox("Claridad del Agua", ["Cristalina", "Ligeramente tomada", "Turbia / Oscura"])
+
+    with col2:
+        # Datos meteorológicos extraídos de Windy
+        direcciones_viento = ["Calma", "Norte (N)", "Nordeste (NE)", "Este (E)", "Sudeste (SE)", "Sur (S)", "Suroeste (SW)", "Oeste (W)", "Noroeste (NW)"]
+        viento_dir = st.selectbox("Dirección del Viento (Windy)", direcciones_viento)
+        
+        viento_vel = st.slider("Velocidad del Viento (nudos / km/h)", min_value=0.0, max_value=50.0, value=10.0, step=1.0)
+        
+        lluvia_estado = st.selectbox(
+            "Previsión de Lluvia (Windy)", 
+            ["Despejado / Sin lluvia", "Llovizna ligera", "Lluvia moderada", "Lluvia intensa / Chubascos"]
+        )
+        
+        marca_egi = st.text_input("Marca / Artesano del Egi", placeholder="Ej: Yamashita, DTD...")
+        color_egi = st.text_input("Color / Acabado del Egi", placeholder="Ej: Rosa Glow, Natural Sardine...")
+        talla_egi = st.selectbox("Tamaño del Egi", ["1.8", "2.0", "2.5", "3.0", "3.5", "Otros"])
+
+    temp_agua = st.slider("Temp. Agua estimada (°C)", min_value=5.0, max_value=25.0, value=15.0, step=0.5)
+    notas = st.text_area("Notas rápidas (Ej: Picó a fondo, tirón seco... Estado del mar)")
+
+    submitted = st.form_submit_button("💾 ¡Guardar Captura!")
         
         if submitted:
             nueva_captura = {
