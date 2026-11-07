@@ -40,9 +40,9 @@ hora_actual = datetime.now(zoneinfo.ZoneInfo("Europe/Madrid")).strftime("%H:%M")
 fecha_actual = datetime.now().date()
 
 with st.form("form_captura", clear_on_submit=True):
-    	col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
     
-    	with col1:
+    with col1:
         # Listado completo de puertos orientado a tablademareas.com
         puertos_tablademareas = [
             "Puerto de Muros", 
@@ -55,8 +55,7 @@ with st.form("form_captura", clear_on_submit=True):
             "Noia",
             "Corcubión",
             "Muros - Esteiro"
-        ]
-        puerto = st.selectbox("Puerto / Pesquero (Tablademareas)", puertos_tablademareas)
+        ]        puerto = st.selectbox("Puerto / Pesquero (Tablademareas)", puertos_tablademareas)
         
         fecha = st.date_input("Fecha", fecha_actual, format="DD/MM/YYYY")
         hora = st.text_input("Hora exacta de la picada", value=hora_actual)
