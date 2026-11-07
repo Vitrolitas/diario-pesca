@@ -72,11 +72,27 @@ with st.form("form_captura", clear_on_submit=True):
         claridad = st.selectbox("Claridad del Agua", ["Cristalina", "Ligeramente tomada", "Turbia / Oscura"])
     with col2:
         # Datos meteorológicos extraídos de Windy
-        direcciones_viento = ["Calma", "Norte (N)", "Nordeste (NE)", "Este (E)", "Sudeste (SE)", "Sur (S)", "Suroeste (SW)", "Oeste (W)", "Noroeste (NW)"]
-        viento_dir = st.selectbox("Dirección del Viento (Windy)", direcciones_viento)
-        
-        viento_vel = st.slider("Velocidad del Viento (nudos / km/h)", min_value=0.0, max_value=50.0, value=10.0, step=1.0)
-        
+    direcciones_viento = [
+        "Norte (N)", 
+        "Nordeste (NE)", 
+        "Este (E)", 
+        "Sudeste (SE)", 
+        "Sur (S)", 
+        "Suroeste (SW)", 
+        "Oeste (W)", 
+        "Noroeste (NW)",
+        "Calma / Variable"
+    ]
+    viento_dir = st.selectbox("Dirección del Viento (Windy)", direcciones_viento)
+
+    viento_vel = st.number_input(
+        "Velocidad del Viento (km/h)", 
+        min_value=0.0, 
+        max_value=120.0, 
+        value=15.0, 
+        step=1.0,
+        help="Introduce los km/h que marca Windy para la hora de la pesca."
+    )
         lluvia_estado = st.selectbox(
             "Previsión de Lluvia (Windy)", 
             ["Despejado / Sin lluvia", "Llovizna ligera", "Lluvia moderada", "Lluvia intensa / Chubascos"]
