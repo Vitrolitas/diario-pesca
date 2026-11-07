@@ -43,7 +43,6 @@ with st.form("form_captura", clear_on_submit=True):
     col1, col2 = st.columns(2)
     
     with col1:
-        # Listado completo de puertos orientado a tablademareas.com
         puertos_tablademareas = [
             "Puerto de Muros", 
             "Portosín (Porto do Son)", 
@@ -55,12 +54,12 @@ with st.form("form_captura", clear_on_submit=True):
             "Noia",
             "Corcubión",
             "Muros - Esteiro"
-        ]        puerto = st.selectbox("Puerto / Pesquero (Tablademareas)", puertos_tablademareas)
+        ]
+        puerto = st.selectbox("Puerto / Pesquero (Tablademareas)", puertos_tablademareas)
         
         fecha = st.date_input("Fecha", fecha_actual, format="DD/MM/YYYY")
         hora = st.text_input("Hora exacta de la picada", value=hora_actual)
         
-        # Estado detallado de la marea
         marea_estado = st.selectbox(
             "Estado de la Marea (Tablademareas)", 
             [
@@ -72,9 +71,7 @@ with st.form("form_captura", clear_on_submit=True):
                 "Bajamar exacta"
             ]
         )
-        
         claridad = st.selectbox("Claridad del Agua", ["Cristalina", "Ligeramente tomada", "Turbia / Oscura"])
-
     with col2:
         # Datos meteorológicos extraídos de Windy
         direcciones_viento = ["Calma", "Norte (N)", "Nordeste (NE)", "Este (E)", "Sudeste (SE)", "Sur (S)", "Suroeste (SW)", "Oeste (W)", "Noroeste (NW)"]
