@@ -251,7 +251,7 @@ elif menu == "Gestión de Datos (CSV)":
         save_data(df_vacio)
         st.success("¡Base de datos restablecida correctamente a cero!")
 
-# --- ASISTENTE DE ABRIGO (LÓGICA INDEPENDIENTE Y CORREGIDA) ---
+# --- ASISTENTE DE ABRIGO (CON CLAVE DINÁMICA REFRESCADA) ---
 st.markdown("---")
 st.subheader("Asistente de Selección de Puerto (Abrigo Geográfico)")
 
@@ -261,38 +261,57 @@ with col_pred1:
     viento_consulta = st.selectbox(
         "Consultar abrigo rápido para dirección de viento:", 
         ["Norte (N)", "Nordeste (NE)", "Este (E)", "Sudeste (SE)", "Sur (S)", "Suroeste (SW)", "Oeste (W)", "Noroeste (NW)", "Calma / Variable"],
-        key="selector_abrigo_viento"
+        key="asistente_viento_dinamico"
     )
 
 with col_pred2:
-    fuerza_viento = st.select_slider("Intensidad orientativa", options=["Flojo", "Moderado", "Fuerte"], key="selector_abrigo_fuerza")
+    fuerza_viento = st.select_slider("Intensidad orientativa", options=["Flojo", "Moderado", "Fuerte"], key="asistente_fuerza_dinamico")
 
 def recomendar_puerto_exacto(dir_viento):
-    d = dir_viento.lower()
-    if "norte" in d or "nordeste" in d or "noroeste" in d:
+    if dir_viento == "Norte (N)":
         return {
             "recomendados": ["Muros - Esteiro", "Puerto de Muros", "Corcubión", "Cee"],
-            "motivo": f"Con vientos de componente **{dir_viento}**, los puertos situados al fondo de la ría y protegidos por montes o laderas (como Muros, Esteiro, Corcubión y Cee) quedan totalmente resguardados."
+            "motivo": "Con viento del **Norte**, los muelles situados al fondo de la ría y bajo resguardo de los montes del norte (Muros, Esteiro, Corcubión y Cee) quedan perfectamente protegidos."
         }
-    elif "sur" in d or "suroeste" in d or "sudeste" in d:
+    elif dir_viento == "Nordeste (NE)":
         return {
-            "recomendados": ["Portosín (Porto do Son)", "Porto do Son", "Lira"],
-            "motivo": f"Con vientos de componente **{dir_viento}**, la cara sur de la ría y los abrigos bajo la Sierra del Barbanza (Portosín y Porto do Son) ofrecen aguas mucho más tranquilas y pescables."
+            "recomendados": ["Muros - Esteiro", "Puerto de Muros", "Cee"],
+            "motivo": "El viento de **Nordeste** (componente terral norteño) cruza los montes y deja el agua muy plana en la zona de Muros y en el fondo de la ría de Corcubión."
         }
-    elif "este" in d:
+    elif dir_viento == "Este (E)":
         return {
             "recomendados": ["Lira", "Puerto de Muros", "Portosín (Porto do Son)"],
-            "motivo": f"Al soplar viento del **{dir_viento}** (dirección tierra a mar), la superficie del agua en las dársenas se mantiene bastante plana y limpia en casi todos los puntos."
+            "motivo": "Con viento de **Este** (tierra a mar puro), las dársenas de Lira, Muros y Portosín apenas sufren oleaje, manteniendo una superficie muy limpia."
         }
-    elif "oeste" in d:
+    elif dir_viento == "Sudeste (SE)":
+        return {
+            "recomendados": ["Portosín (Porto do Son)", "Porto do Son", "Lira"],
+            "motivo": "El viento de **Sudeste** choca contra la parte interior de la barra, siendo ideales los puertos de la cara sur como Portosín y Porto do Son."
+        }
+    elif dir_viento == "Sur (S)":
+        return {
+            "recomendados": ["Portosín (Porto do Son)", "Porto do Son"],
+            "motivo": "Con componente **Sur**, la cara sur de la ría queda abrigada por la Sierra del Barbanza, haciendo que Portosín y Porto do Son sean los más resguardados."
+        }
+    elif dir_viento == "Suroeste (SW)":
+        return {
+            "recomendados": ["Portosín (Porto do Son)", "Porto do Son"],
+            "motivo": "El viento de **Suroeste** entra directo de mar abierto en la ría de Muros y Noia; el mejor resguardo se encuentra al amparo del muelle de Portosín."
+        }
+    elif dir_viento == "Oeste (W)":
         return {
             "recomendados": ["Muros - Esteiro", "Cee", "Corcubión"],
-            "motivo": f"Con viento directo de mar abierto del **{dir_viento}**, las zonas más seguras y resguardadas son los muelles ubicados más al fondo de las rías."
+            "motivo": "Con viento de **Oeste** directo de mar abierto, las zonas menos castigadas son las más abrigadas al fondo de las rías (Esteiro, Cee y Corcubión)."
+        }
+    elif dir_viento == "Noroeste (NW)":
+        return {
+            "recomendados": ["Muros - Esteiro", "Puerto de Muros", "Corcubión"],
+            "motivo": "El viento de **Noroeste** golpea la costa exterior; los muelles de Muros y Esteiro quedan protegidos por la propia configuración de la ría."
         }
     else:
         return {
-            "recomendados": ["Puerto de Muros", "Portosín (Porto do Son)", "Cee"],
-            "motivo": "Con condiciones de calma o viento variable, cualquier dársena de la zona es perfectamente accesible y cómoda para pescar."
+            "recomendados": ["Puerto de Muros", "Portosín (Porto do Son)", "Cee", "Lira"],
+            "motivo": "Con condiciones de **Calma o Variable**, cualquier puerto de la zona es excelente y cómodo para la práctica del eging."
         }
 
 res_abrigo = recomendar_puerto_exacto(viento_consulta)
