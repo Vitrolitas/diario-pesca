@@ -45,7 +45,6 @@ with st.form("form_captura", clear_on_submit=True):
     
     with col1:
         puertos_tablademareas = [
-            puertos_tablademareas = [
             "Puerto de Muros",
             "Muros - Esteiro",
             "Portosín (Porto do Son)",
