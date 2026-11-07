@@ -70,18 +70,19 @@ with st.form("form_captura", clear_on_submit=True):
             ]
         )
         claridad = st.selectbox("Claridad del Agua", ["Cristalina", "Ligeramente tomada", "Turbia / Oscura"])
-    with col2:
-        # Datos meteorológicos extraídos de Windy
-    	direcciones_viento = [
-            "Norte (N)", 
-            "Nordeste (NE)", 
-            "Este (E)", 
-            "Sudeste (SE)", 
-            "Sur (S)", 
-            "Suroeste (SW)", 
-            "Oeste (W)", 
-            "Noroeste (NW)",
-            "Calma / Variable"
+    
+        with col2:
+    # Datos meteorológicos extraídos de Windy
+    direcciones_viento = [
+        "Norte (N)", 
+        "Nordeste (NE)", 
+        "Este (E)", 
+        "Sudeste (SE)", 
+        "Sur (S)", 
+        "Suroeste (SW)", 
+        "Oeste (W)", 
+        "Noroeste (NW)",
+        "Calma / Variable"
     ]
     viento_dir = st.selectbox("Dirección del Viento (Windy)", direcciones_viento)
 
@@ -93,11 +94,11 @@ with st.form("form_captura", clear_on_submit=True):
         step=1.0,
         help="Introduce los km/h que marca Windy para la hora de la pesca."
     )
-        lluvia_estado = st.selectbox(
-            "Previsión de Lluvia (Windy)", 
-            ["Despejado / Sin lluvia", "Llovizna ligera", "Lluvia moderada", "Lluvia intensa / Chubascos"]
-        )
-        
+
+    lluvia_estado = st.selectbox(
+        "Previsión de Lluvia (Windy)",
+        ["Despejado / Sin lluvia", "Llovizna ligera", "Lluvia moderada", "Lluvia intensa / Chubascos"]
+    )
         marca_egi = st.text_input("Marca / Artesano del Egi", placeholder="Ej: Yamashita, DTD...")
         color_egi = st.text_input("Color / Acabado del Egi", placeholder="Ej: Rosa Glow, Natural Sardine...")
         talla_egi = st.selectbox("Tamaño del Egi", ["1.8", "2.0", "2.5", "3.0", "3.5", "Otros"])
