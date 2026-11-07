@@ -42,7 +42,7 @@ fecha_actual = datetime.now().date()
 with st.form("form_captura", clear_on_submit=True):
     	col1, col2 = st.columns(2)
     
-    with col1:
+    	with col1:
         # Listado completo de puertos orientado a tablademareas.com
         puertos_tablademareas = [
             "Puerto de Muros", 
