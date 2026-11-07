@@ -33,7 +33,6 @@ PUERTOS_COORDS = {
     "Cee": {"lat": 42.956, "lon": -9.189}
 }
 
-# Función para convertir grados de dirección de viento a nombre de rumbo
 def grados_a_rumbo(grados):
     if grados is None:
         return "Calma / Variable"
@@ -41,14 +40,10 @@ def grados_a_rumbo(grados):
     index = int((grados + 22.5) / 45) % 8
     return direcciones[index]
 
-# Función para consultar el clima actual y la temperatura del agua en Open-Meteo
 def obtener_clima_open_meteo(puerto_nombre):
     coords = PUERTOS_COORDS.get(puerto_nombre, {"lat": 42.775, "lon": -9.060})
     
-    # 1. API Meteorológica (Atmósfera)
     url_atmosfera = f"https://api.open-meteo.com/v1/forecast?latitude={coords['lat']}&longitude={coords['lon']}&current=temperature_2m,precipitation,wind_speed_10m,wind_direction_10m"
-    
-    # 2. API Marina (Temperatura de la superficie del mar)
     url_marina = f"https://marine-api.open-meteo.com/v1/marine?latitude={coords['lat']}&longitude={coords['lon']}&current=sea_surface_temperature"
 
     temp_amb = 15.0
@@ -58,7 +53,6 @@ def obtener_clima_open_meteo(puerto_nombre):
     temp_agua = 15.0
 
     try:
-        # Consulta atmosférica
         resp_at = requests.get(url_atmosfera, timeout=5)
         if resp_at.status_code == 200:
             data_at = resp_at.json().get("current", {})
@@ -81,7 +75,6 @@ def obtener_clima_open_meteo(puerto_nombre):
         pass
 
     try:
-        # Consulta marina (Temp. del agua)
         resp_mar = requests.get(url_marina, timeout=5)
         if resp_mar.status_code == 200:
             data_mar = resp_mar.json().get("current", {})
@@ -99,7 +92,6 @@ def obtener_clima_open_meteo(puerto_nombre):
         "temp_agua": temp_agua
     }
 
-# Función matemática para calcular la fase lunar exacta (estándar tablademareas)
 def obtener_fase_lunar(fecha_obj):
     ref_date = datetime.date(2000, 1, 6)
     days = (fecha_obj - ref_date).days
@@ -119,7 +111,7 @@ def obtener_fase_lunar(fecha_obj):
 df = load_data()
 
 # --- MENÚ LATERAL (SIDEBAR) ---
-st.sidebar.title("`Menú Principal`")
+st.sidebar.title("Menú Principal")
 menu = st.sidebar.radio(
     "Selecciona una opción:", 
     ["Registrar Captura", "Ver Diario / Historial", "Asistente Histórico (Similitud)", "Gestión de Datos (CSV)"]
@@ -127,24 +119,21 @@ menu = st.sidebar.radio(
 
 # --- VISTA 1: REGISTRAR CAPTURA ---
 if menu == "Registrar Captura":
-    st.title("`Diario de Capturas Eging (Clima & Agua Automáticos)`")
+    st.title("Diario de Capturas Eging (Clima & Agua Automáticos)")
     st.markdown("---")
 
-    st.subheader("`Registrar Nueva Jornada`")
+    st.subheader("Registrar Nueva Jornada")
 
     col1, col2 = st.columns(2)
 
     with col1:
         fecha = st.date_input("Fecha de la salida", value=datetime.date.today())
-        
-        # Fase lunar automática
         fase_lunar_calculada = obtener_fase_lunar(fecha)
         st.info(f"Fase lunar (Tablademareas): **{fase_lunar_calculada}**")
 
         puertos_tablademareas = list(PUERTOS_COORDS.keys())
         puerto = st.selectbox("Puerto / Pesquero", puertos_tablademareas)
         
-        # Botón para consultar clima + agua de Open-Meteo
         if "clima_actual" not in st.session_state:
             st.session_state.clima_actual = obtener_clima_open_meteo(puerto)
 
@@ -158,12 +147,8 @@ if menu == "Registrar Captura":
         hora_captura = st.text_input("Hora de la captura", value=hora_actual_str, placeholder="Ej: 20:30")
 
         marea = st.selectbox("Estado de la Marea", [
-            "Subiendo (Primeras horas)",
-            "Subiendo (A punto de pleamar)",
-            "Pleamar exacta",
-            "Bajando (Primeras horas)",
-            "Bajando (A punto de bajamar)",
-            "Bajamar exacta"
+            "Subiendo (Primeras horas)", "Subiendo (A punto de pleamar)", "Pleamar exacta",
+            "Bajando (Primeras horas)", "Bajando (A punto de bajamar)", "Bajamar exacta"
         ])
         claridad = st.selectbox("Claridad del Agua", ["Cristalina", "Ligeramente tomada", "Turbia / Oscura"])
 
@@ -179,10 +164,7 @@ if menu == "Registrar Captura":
             default_viento_idx = 0
 
         viento_dir = st.selectbox("Dirección del Viento (Open-Meteo)", direcciones_viento, index=default_viento_idx)
-
-        viento_vel = st.number_input(
-            "Velocidad del Viento (km/h)", min_value=0.0, max_value=120.0, value=clima["vel"], step=1.0
-        )
+        viento_vel = st.number_input("Velocidad del Viento (km/h)", min_value=0.0, max_value=120.0, value=clima["vel"], step=1.0)
 
         opciones_lluvia = ["Despejado / Sin lluvia", "Llovizna ligera", "Lluvia moderada", "Lluvia intensa"]
         try:
@@ -191,18 +173,13 @@ if menu == "Registrar Captura":
             default_lluvia_idx = 0
 
         lluvia_estado = st.selectbox("Previsión de Lluvia", opciones_lluvia, index=default_lluvia_idx)
-
-        resultado_jornada = st.selectbox(
-            "Resultado de la Pesca", 
-            ["Éxito (Buenas capturas)", "Regular (Alguna pieza)", "Sin tocar escama (Blanco)"]
-        )
+        resultado_jornada = st.selectbox("Resultado de la Pesca", ["Éxito (Buenas capturas)", "Regular (Alguna pieza)", "Sin tocar escama (Blanco)"])
 
         marca_egi = st.text_input("Marca del Egi", placeholder="Ej: Yamashita, DTD...")
         color_egi = st.text_input("Color / Acabado del Egi", placeholder="Ej: Rosa Glow, Natural Sardine...")
         talla_egi = st.selectbox("Tamaño del Egi", ["1.8", "2.0", "2.5", "3.0", "3.5", "Otros"])
 
-    # Registros Térmicos (Ambos precargados por la API)
-    st.markdown("### `Registros Térmicos (Ambiente y Mar)`")
+    st.markdown("### Registros Térmicos (Ambiente y Mar)")
     col_t1, col_t2 = st.columns(2)
     with col_t1:
         temp_ambiente = st.slider("Temp. Ambiente / Exterior (°C) [Open-Meteo]", min_value=-5.0, max_value=40.0, value=clima["temp"], step=0.5)
@@ -213,30 +190,19 @@ if menu == "Registrar Captura":
 
     if st.button("💾 ¡Guardar Captura en el Historial!"):
         nueva_captura = {
-            "Fecha": str(fecha), 
-            "Puerto": puerto, 
-            "Hora": hora_captura, 
-            "Marea": marea,
-            "Claridad Agua": claridad, 
-            "Temp_Ambiente_C": temp_ambiente,
-            "Temp_Agua_C": temp_agua, 
-            "Viento_Dir": viento_dir, 
-            "Viento_Vel_KmH": viento_vel,
-            "Lluvia": lluvia_estado,
-            "Fase_Luna": fase_lunar_calculada,
-            "Resultado": resultado_jornada,
-            "Marca_Egi": marca_egi, 
-            "Color_Egi": color_egi, 
-            "Talla_Egi": talla_egi, 
-            "Notas": notas
+            "Fecha": str(fecha), "Puerto": puerto, "Hora": hora_captura, "Marea": marea,
+            "Claridad Agua": claridad, "Temp_Ambiente_C": temp_ambiente, "Temp_Agua_C": temp_agua, 
+            "Viento_Dir": viento_dir, "Viento_Vel_KmH": viento_vel, "Lluvia": lluvia_estado,
+            "Fase_Luna": fase_lunar_calculada, "Resultado": resultado_jornada,
+            "Marca_Egi": marca_egi, "Color_Egi": color_egi, "Talla_Egi": talla_egi, "Notas": notas
         }
         df = pd.concat([df, pd.DataFrame([nueva_captura])], ignore_index=True)
         save_data(df)
-        st.success(f"🎉 ¡Jornada en **{puerto}** guardada correctamente con temp. de agua **{temp_agua} °C**!")
+        st.success(f"🎉 ¡Jornada en **{puerto}** guardada correctamente!")
 
 # --- VISTA 2: VER HISTORIAL ---
 elif menu == "Ver Diario / Historial":
-    st.title("`Historial de Capturas Guardadas`")
+    st.title("Historial de Capturas Guardadas")
     st.markdown("---")
     if df.empty:
         st.info("No hay capturas registradas todavía.")
@@ -245,12 +211,12 @@ elif menu == "Ver Diario / Historial":
 
 # --- VISTA 3: ASISTENTE INTELIGENTE BASADO EN HISTORIAL ---
 elif menu == "Asistente Histórico (Similitud)":
-    st.title("`Inteligencia de Pesca: Coincidencias Históricas`")
+    st.title("Inteligencia de Pesca: Coincidencias Históricas")
     st.markdown("---")
     st.write("Selecciona a qué puerto vas a ir hoy y las condiciones actuales para comprobar si ya pescaste antes en un escenario similar.")
 
     if df.empty:
-        st.warning("Aún no tienes datos guardados en tu historial. Registra algunas salidas primero para que la app pueda comparar.")
+        st.warning("Aún no tienes datos guardados en tu historial.")
     else:
         col_h1, col_h2 = st.columns(2)
         with col_h1:
@@ -266,23 +232,16 @@ elif menu == "Asistente Histórico (Similitud)":
 
         if st.button("🔍 Buscar coincidencias en mi historial"):
             coincidencias = df[(df["Puerto"] == puerto_busqueda) & (df["Viento_Dir"] == viento_busqueda)]
-            
             if not coincidencias.empty:
                 st.success(f"¡Encontradas **{len(coincidencias)} jornadas pasadas** en {puerto_busqueda} con viento {viento_busqueda}!")
                 st.dataframe(coincidencias, use_container_width=True)
             else:
-                coincidencias_puerto = df[df["Puerto"] == puerto_busqueda]
-                if not coincidencias_puerto.empty:
-                    st.info(f"No hay registros exactos con ese viento, pero sí tienes {len(coincidencias_puerto)} salidas previas en este puerto:")
-                    st.dataframe(coincidencias_puerto, use_container_width=True)
-                else:
-                    st.warning(f"Todavía no tienes ningún registro guardado para el puerto de {puerto_busqueda}.")
+                st.warning("No hay registros exactos con ese viento para este puerto.")
 
 # --- VISTA 4: GESTIÓN DE DATOS ---
 elif menu == "Gestión de Datos (CSV)":
-    st.title("`Mantenimiento de Datos`")
+    st.title("Mantenimiento de Datos")
     st.markdown("---")
-    st.warning("Zona de restablecimiento: Si el archivo se corrompe o deseas vaciar el historial, puedes restablecerlo aquí.")
     if st.button("🗑️ Restablecer / Vaciar Base de Datos (CSV)"):
         df_vacio = pd.DataFrame(columns=[
             "Fecha", "Puerto", "Hora", "Marea", "Claridad Agua", 
@@ -292,16 +251,16 @@ elif menu == "Gestión de Datos (CSV)":
         save_data(df_vacio)
         st.success("¡Base de datos restablecida correctamente a cero!")
 
-# --- ASISTENTE DE ABRIGO (SIEMPRE VISIBLE ABAJO) ---
+# --- ASISTENTE DE ABRIGO (CORREGIDO PARA ACTUALIZARSE AL CAMBIAR EL VIENTO) ---
 st.markdown("---")
-st.subheader("`Asistente de Selección de Puerto (Abrigo Geográfico)`")
+st.subheader("Asistente de Selección de Puerto (Abrigo Geográfico)")
 
 col_pred1, col_pred2 = st.columns(2)
 
 with col_pred1:
     viento_consulta = st.selectbox(
-        "Consultar abrigo rápido para viento:", 
-        ["Norte (N)", "Nordeste (NE)", "Este (E)", "Sudeste (SE)", "Sur (S)", "Suroeste (SW)", "Oeste (W)", "Noroeste (NW)"]
+        "Consultar abrigo rápido para dirección de viento:", 
+        ["Norte (N)", "Nordeste (NE)", "Este (E)", "Sudeste (SE)", "Sur (S)", "Suroeste (SW)", "Oeste (W)", "Noroeste (NW)", "Calma / Variable"]
     )
 
 with col_pred2:
@@ -311,7 +270,7 @@ def recomendar_puerto(direccion):
     if "Norte" in direccion or "Nordeste" in direccion or "Noroeste" in direccion:
         return {
             "recomendados": ["Muros - Esteiro", "Puerto de Muros", "Corcubión", "Cee"],
-            "motivo": "Los vientos del Norte/Nordeste quedan protegidos por el monte en Muros/Esteiro y al fondo de la ría en Corcubión/Cee."
+            "motivo": "Los vientos de componente Norte quedan protegidos por el monte en Muros/Esteiro y al fondo de la ría en Corcubión/Cee."
         }
     elif "Sur" in direccion or "Suroeste" in direccion or "Sudeste" in direccion:
         return {
@@ -325,8 +284,8 @@ def recomendar_puerto(direccion):
         }
     else: 
         return {
-            "recomendados": ["Muros - Esteiro", "Cee"],
-            "motivo": "Con viento directo de mar abierto (Oeste), los spots más resguardados son los ubicados al fondo de las rías."
+            "recomendados": ["Muros - Esteiro", "Cee", "Corcubión"],
+            "motivo": "Con viento directo de mar abierto u Oeste, los spots más resguardados son los ubicados al fondo de las rías."
         }
 
 res = recomendar_puerto(viento_consulta)
