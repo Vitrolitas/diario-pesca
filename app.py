@@ -251,44 +251,48 @@ elif menu == "Gestión de Datos (CSV)":
         save_data(df_vacio)
         st.success("¡Base de datos restablecida correctamente a cero!")
 
-# --- ASISTENTE DE ABRIGO (FORZANDO ACTUALIZACIÓN ESTRICTA) ---
+# --- ASISTENTE DE ABRIGO CON FORZADO DE ESTADO ---
 st.markdown("---")
 st.subheader("Asistente de Selección de Puerto (Abrigo Geográfico)")
 
-col_pred1, col_pred2 = st.columns(2)
+col_pred1, col_pred2, col_pred3 = st.columns(3)
 
 with col_pred1:
     viento_consulta = st.selectbox(
-        "Consultar abrigo rápido para dirección de viento:", 
+        "Dirección del viento a consultar:", 
         ["Norte (N)", "Nordeste (NE)", "Este (E)", "Sudeste (SE)", "Sur (S)", "Suroeste (SW)", "Oeste (W)", "Noroeste (NW)", "Calma / Variable"],
-        key="asistente_viento_fijo_v2"
+        key="viento_abrigo_manual"
     )
 
 with col_pred2:
-    fuerza_viento = st.select_slider("Intensidad orientativa", options=["Flojo", "Moderado", "Fuerte"], key="asistente_fuerza_fijo_v2")
+    fuerza_viento = st.select_slider("Intensidad", options=["Flojo", "Moderado", "Fuerte"], key="fuerza_abrigo_manual")
 
-# Diccionario directo de recomendaciones por cada valor exacto del desplegable
-def obtener_recomendacion(viento):
+with col_pred3:
+    st.write("")
+    st.write("")
+    actualizar_asistente = st.button("🔄 Actualizar Asistente")
+
+def recomendar_puerto_estricto(viento):
     if viento == "Norte (N)":
-        return ["Muros - Esteiro", "Puerto de Muros", "Corcubión", "Cee"], "Con viento del **Norte**, los muelles situados al fondo de la ría y bajo resguardo de los montes del norte quedan perfectamente protegidos."
+        return ["Muros - Esteiro", "Puerto de Muros", "Corcubión", "Cee"], "Con viento del **Norte**, los muelles situados al fondo de la ría y bajo resguardo de los montes del norte (Muros, Esteiro, Corcubión y Cee) quedan perfectamente protegidos."
     elif viento == "Nordeste (NE)":
-        return ["Muros - Esteiro", "Puerto de Muros", "Cee"], "El viento de **Nordeste** (terral) cruza los montes y deja el agua muy plana en la zona de Muros y fondo de la ría de Corcubión."
+        return ["Muros - Esteiro", "Puerto de Muros", "Cee"], "El viento de **Nordeste** (terral) cruza los montes y deja el agua muy plana en la zona de Muros y en el fondo de la ría de Corcubión."
     elif viento == "Este (E)":
-        return ["Lira", "Puerto de Muros", "Portosín (Porto do Son)"], "Con viento de **Este** (tierra a mar puro), las dársenas de Lira, Muros y Portosín apenas sufren oleaje."
+        return ["Lira", "Puerto de Muros", "Portosín (Porto do Son)"], "Con viento de **Este** (tierra a mar puro), las dársenas de Lira, Muros y Portosín apenas sufren oleaje, manteniendo una superficie muy limpia."
     elif viento == "Sudeste (SE)":
-        return ["Portosín (Porto do Son)", "Porto do Son", "Lira"], "El viento de **Sudeste** bate la parte norte, siendo ideales los puertos de la cara sur como Portosín y Porto do Son."
+        return ["Portosín (Porto do Son)", "Porto do Son", "Lira"], "El viento de **Sudeste** choca contra la parte interior de la barra, siendo ideales los puertos de la cara sur como Portosín y Porto do Son."
     elif viento == "Sur (S)":
-        return ["Portosín (Porto do Son)", "Porto do Son"], "Con componente **Sur**, la cara sur de la ría queda abrigada por la Sierra del Barbanza (Portosín y Porto do Son)."
+        return ["Portosín (Porto do Son)", "Porto do Son"], "Con componente **Sur**, la cara sur de la ría queda abrigada por la Sierra del Barbanza, haciendo que Portosín y Porto do Son sean los más resguardados."
     elif viento == "Suroeste (SW)":
-        return ["Portosín (Porto do Son)", "Porto do Son"], "El viento de **Suroeste** entra abierto en la ría; el mejor resguardo se encuentra al amparo del muelle de Portosín."
+        return ["Portosín (Porto do Son)", "Porto do Son"], "El viento de **Suroeste** entra directo de mar abierto en la ría; el mejor resguardo se encuentra al amparo del muelle de Portosín."
     elif viento == "Oeste (W)":
-        return ["Muros - Esteiro", "Cee", "Corcubión"], "Con viento de **Oeste** directo, las zonas menos castigadas son los muelles más al fondo de las rías (Esteiro, Cee y Corcubión)."
+        return ["Muros - Esteiro", "Cee", "Corcubión"], "Con viento de **Oeste** directo de mar abierto, las zonas menos castigadas son las más abrigadas al fondo de las rías (Esteiro, Cee y Corcubión)."
     elif viento == "Noroeste (NW)":
-        return ["Muros - Esteiro", "Puerto de Muros", "Corcubión"], "El viento de **Noroeste** golpea la costa exterior; Muros y Esteiro quedan protegidos por la propia geometría de la ría."
+        return ["Muros - Esteiro", "Puerto de Muros", "Corcubión"], "El viento de **Noroeste** golpea la costa exterior; los muelles de Muros y Esteiro quedan protegidos por la propia configuración de la ría."
     else:
-        return ["Puerto de Muros", "Portosín (Porto do Son)", "Cee", "Lira"], "Con condiciones de **Calma o Variable**, cualquier puerto de la zona es perfectamente accesible y cómodo."
+        return ["Puerto de Muros", "Portosín (Porto do Son)", "Cee", "Lira"], "Con condiciones de **Calma o Variable**, cualquier puerto de la zona es excelente y cómodo para la práctica del eging."
 
-puertos_rec, motivo_rec = obtener_recomendacion(viento_consulta)
+puertos_rec, motivo_rec = recomendar_puerto_estricto(viento_consulta)
 
 st.success(f"📌 **Puertos más abrigados recomendados:** {', '.join(puertos_rec)}")
 st.info(f"ℹ️ **Razón técnica:** {motivo_rec}")
