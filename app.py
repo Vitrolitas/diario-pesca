@@ -35,8 +35,9 @@ if opcion == "🎯 ¡Registrar Captura!":
     st.header("🎯 ¡Tengo un Calamar!")
     st.caption("Apunta los datos de esta pieza y el origen exacto del señuelo.")
     
-    hora_actual = datetime.now().strftime("%H:%M")
-    fecha_actual = datetime.now().date()
+    import zoneinfo
+hora_actual = datetime.now(zoneinfo.ZoneInfo("Europe/Madrid")).strftime("%H:%M")
+fecha_actual = datetime.now().date()
 
     with st.form("form_captura", clear_on_submit=True):
     	col1, col2 = st.columns(2)
