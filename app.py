@@ -251,26 +251,21 @@ elif menu == "Gestión de Datos (CSV)":
         save_data(df_vacio)
         st.success("¡Base de datos restablecida correctamente a cero!")
 
-# --- ASISTENTE DE ABRIGO CON FORZADO DE ESTADO ---
+# --- ASISTENTE DE ABRIGO MEDIANTE FORMULARIO (100% REACTIVO) ---
 st.markdown("---")
 st.subheader("Asistente de Selección de Puerto (Abrigo Geográfico)")
 
-col_pred1, col_pred2, col_pred3 = st.columns(3)
-
-with col_pred1:
-    viento_consulta = st.selectbox(
-        "Dirección del viento a consultar:", 
-        ["Norte (N)", "Nordeste (NE)", "Este (E)", "Sudeste (SE)", "Sur (S)", "Suroeste (SW)", "Oeste (W)", "Noroeste (NW)", "Calma / Variable"],
-        key="viento_abrigo_manual"
-    )
-
-with col_pred2:
-    fuerza_viento = st.select_slider("Intensidad", options=["Flojo", "Moderado", "Fuerte"], key="fuerza_abrigo_manual")
-
-with col_pred3:
-    st.write("")
-    st.write("")
-    actualizar_asistente = st.button("🔄 Actualizar Asistente")
+with st.form(key="form_asistente_abrigo"):
+    col_f1, col_f2 = st.columns(2)
+    with col_f1:
+        viento_consulta = st.selectbox(
+            "Selecciona la dirección del viento prevista:", 
+            ["Norte (N)", "Nordeste (NE)", "Este (E)", "Sudeste (SE)", "Sur (S)", "Suroeste (SW)", "Oeste (W)", "Noroeste (NW)", "Calma / Variable"]
+        )
+    with col_f2:
+        fuerza_viento = st.select_slider("Intensidad orientativa", options=["Flojo", "Moderado", "Fuerte"])
+    
+    submitted = st.form_submit_button("🔍 Calcular Puertos Protegidos")
 
 def recomendar_puerto_estricto(viento):
     if viento == "Norte (N)":
