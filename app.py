@@ -45,16 +45,14 @@ with st.form("form_captura", clear_on_submit=True):
     
     with col1:
         puertos_tablademareas = [
-            "Puerto de Muros", 
-            "Portosín (Porto do Son)", 
-            "Lira", 
-            "Camariñas", 
-            "Fisterra", 
-            "Muxía", 
+            puertos_tablademareas = [
+            "Puerto de Muros",
+            "Muros - Esteiro",
+            "Portosín (Porto do Son)",
             "Porto do Son",
-            "Noia",
             "Corcubión",
-            "Muros - Esteiro"
+            "Lira",
+            "Cee"
         ]
         puerto = st.selectbox("Puerto / Pesquero (Tablademareas)", puertos_tablademareas)
         
