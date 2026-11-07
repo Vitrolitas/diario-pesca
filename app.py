@@ -132,3 +132,44 @@ elif opcion == "📊 Estadísticas de Señuelos y Artesanos":
         st.subheader("Eficacia por Marca o Creador")
         fig = px.histogram(df, x="Marca_Egi", color="Puerto", title="Capturas conseguidas por cada Fabricante / Artesano")
         st.plotly_chart(fig, use_container_width=True)
+st.markdown("---")
+st.subheader("💡 Asistente de Selección de Puerto (Abrigo)")
+
+col_pred1, col_pred2 = st.columns(2)
+
+with col_pred1:
+    viento_consulta = st.selectbox(
+        "Dirección del viento actual (Windy)", 
+        ["Norte (N)", "Nordeste (NE)", "Este (E)", "Sudeste (SE)", "Sur (S)", "Suroeste (SW)", "Oeste (W)", "Noroeste (NW)"]
+    )
+
+with col_pred2:
+    fuerza_viento = st.select_slider("Intensidad del viento", options=["Flojo", "Moderado", "Fuerte"])
+
+# Lógica de abrigo según vientos dominantes en la zona
+def recomendar_puerto(direccion):
+    if "Norte" in direccion or "Nordeste" in direccion or "Noroeste" in direccion:
+        return {
+            "recomendados": ["Muros - Esteiro", "Puerto de Muros", "Corcubión", "Cee"],
+            "motivo": "Los vientos del Norte y Nordeste quedan protegidos por el monte en Muros/Esteiro y al fondo de la ría en Corcubión/Cee."
+        }
+    elif "Sur" in direccion or "Suroeste" in direccion or "Sudeste" in direccion:
+        return {
+            "recomendados": ["Portosín (Porto do Son)", "Porto do Son"],
+            "motivo": "La cara sur de la ría (Portosín y Porto do Son) queda perfectamente al resguardo de la Sierra del Barbanza con vientos de componente Sur."
+        }
+    elif "Este" in direccion:
+        return {
+            "recomendados": ["Lira", "Puerto de Muros", "Portosín (Porto do Son)"],
+            "motivo": "Con viento de Este (tierra a mar), el agua se mantiene bastante plana y pescable en casi todas las dársenas."
+        }
+    else: # Oeste / Mar de fuera
+        return {
+            "recomendados": ["Muros - Esteiro", "Cee"],
+            "motivo": "Con viento directo de mar abierto (Oeste), los spots más resguardados son los ubicados al fondo de las rías."
+        }
+
+res = recomendar_puerto(viento_consulta)
+
+st.success(f"📌 **Puertos más abrigados recomendados:** {', '.join(res['recomendados'])}")
+st.info(f"ℹ️ **Razón técnica:** {res['motivo']}")
