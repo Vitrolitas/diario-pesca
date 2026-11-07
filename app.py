@@ -43,7 +43,7 @@ if opcion == "🎯 ¡Registrar Captura!":
         
         with col1:
             puerto = st.text_input("Puerto / Pesquero", value="Puerto de Muros")
-            fecha = st.date_input("Fecha", fecha_actual)
+            fecha = st.date_input("Fecha", fecha_actual, format="DD/MM/YYYY")
             hora = st.text_input("Hora exacta de la picada", value=hora_actual)
             marea = st.selectbox("Estado de la Marea", ["Llenante", "Pleamar / Llena", "Vaciante", "Bajamar / Vacía"])
             claridad = st.selectbox("Claridad del Agua", ["Cristalina", "Ligeramente tomada", "Turbia / Con lodo", "Oscura"])
