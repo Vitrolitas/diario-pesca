@@ -383,7 +383,7 @@ elif menu == "Asistente Histórico (Similitud)":
 
             if top_coincidencia["Notas"]:
                 st.markdown(f"📝 **Nota rápida registrada en esa jornada similar ({top_coincidencia['Fecha']}):**")
-                st.blockquote(top_coincidencia["Notas"])
+                st.markdown(f"> {top_coincidencia['Notas']}")
 
 # --- VISTA 4: GESTIÓN DE DATOS ---
 elif menu == "Gestión de Datos (CSV)":
